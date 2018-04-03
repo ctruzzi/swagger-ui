@@ -108,6 +108,9 @@ export default class Topbar extends React.Component {
     let isLoading = specSelectors.loadingStatus() === "loading"
     let isFailed = specSelectors.loadingStatus() === "failed"
 
+    let securityDefinitions = specSelectors.securityDefinitions()
+    let AuthorizeBtn = getComponent("authorizeBtn", true)
+
     let inputStyle = {}
     if(isFailed) inputStyle.color = "red"
     if(isLoading) inputStyle.color = "#aaa"
@@ -147,6 +150,9 @@ export default class Topbar extends React.Component {
             <form className="download-url-wrapper" onSubmit={formOnSubmit}>
               {control.map((el, i) => cloneElement(el, { key: i }))}
             </form>
+              { securityDefinitions ? (
+                <AuthorizeBtn />
+              ) : null }
           </div>
         </div>
       </div>

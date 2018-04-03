@@ -69,35 +69,79 @@
 
 <script src="./swagger-ui-bundle.js"> </script>
 <script src="./swagger-ui-standalone-preset.js"> </script>
-<script>
-  window.onload = function() {
-    window["SwaggerUIBundle"] = window["swagger-ui-bundle"]
+<script th:inline="javascript">
+/*<![CDATA[*/
+window.onload = function() {
+      window["SwaggerUIBundle"] = window["swagger-ui-bundle"]
     window["SwaggerUIStandalonePreset"] = window["swagger-ui-standalone-preset"]
-    // Build a system
-    const ui = SwaggerUIBundle({
-      url: "http://petstore.swagger.io/v2/swagger.json",
-      dom_id: '#swagger-ui',
-      presets: [
-        SwaggerUIBundle.presets.apis,
-        SwaggerUIStandalonePreset
-      ],
-      plugins: [
-        SwaggerUIBundle.plugins.DownloadUrl
-      ],
-      layout: "StandaloneLayout"
-    })
-
-    window.ui = ui
-
-    ui.initOAuth({
-      clientId: "your-client-id",
-      clientSecret: "your-client-secret-if-required",
-      realm: "your-realms",
-      appName: "your-app-name",
-      scopeSeparator: " ",
-      additionalQueryStringParams: {}
-    })
+  var urlMatches = /(.*)\/swagger-ui.html.*/.exec(window.location.href);
+  // Parse through JSON and find all objects of 'key' or 'value'
+  function getObjects(obj, key, val) {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(getObjects(obj[i], key, val));
+        } else
+        //if key matches and value matches or if key matches and value is not passed (eliminating the case where key matches but passed value does not)
+        if (i == key && obj[i] == val || i == key && val == '') { //
+            objects.push(obj);
+        } else if (obj[i] == val && key == ''){
+            //only add if the object is not already in the array
+            if (objects.lastIndexOf(obj) == -1){
+                objects.push(obj);
+            }
+        }
+    }
+    return objects;
   }
+  function request(url) {
+    const xhr = new XMLHttpRequest();
+    xhr.timeout = 3000;
+    xhr.onreadystatechange = function(e) {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          // Add basic openAPI 3.0 support to allow reserved characters for certain parameters. 
+          var json = JSON.parse(xhr.responseText)
+          getObjects(json, 'name', 'searchQuery').forEach(
+            function(parameter) {
+              parameter.allowReserved = true
+            }
+          );
+          // Build a system
+          const ui = SwaggerUIBundle({
+            spec: json,
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            tagsSorter: 'alpha',
+            operationsSorter: 'method',
+            docExpansion: 'none',
+            validatorUrl:null,
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout"
+          })
+          window.ui = ui
+         // Code here for the server answer when successful
+        } else {
+         // Code here for the server answer when not successful
+        }
+      }
+    }
+    xhr.ontimeout = function () {
+      // Well, it took to long do some code here to handle that
+    }
+    xhr.open('get', url, true)
+    xhr.send();
+  }
+  request("http://localhost:5000/docs/v2/api-docs");
+}
+/*]]>*/
 </script>
 </body>
 

@@ -87,7 +87,7 @@ export default class BaseLayout extends React.Component {
                 ) : null }
               </Col>
             </Row>
-            { schemes && schemes.size || securityDefinitions ? (
+            { schemes && schemes.size ? (
               <div className="scheme-container">
                 <Col className="schemes wrapper" mobile={12}>
                   { schemes && schemes.size ? (
@@ -95,10 +95,6 @@ export default class BaseLayout extends React.Component {
                       currentScheme={specSelectors.operationScheme()}
                       schemes={ schemes }
                       specActions={ specActions } />
-                  ) : null }
-
-                  { securityDefinitions ? (
-                    <AuthorizeBtn />
                   ) : null }
                 </Col>
               </div>
