@@ -141,7 +141,7 @@ export default class Operations extends React.Component {
                           op={op}
                           path={path}
                           method={method}
-                          tag={tag}
+                          tag={createDeepLinkPath(tag)}
                         />
                       }).toArray()
                     }
